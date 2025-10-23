@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🐉 Drakonimi - Dragon Wisdom Platform
 
-## Getting Started
+**Interactive mythology platform exploring dragons across civilizations with force-directed graph visualization.**
 
-First, run the development server:
+![Status](https://img.shields.io/badge/Status-Complete-success) ![Next.js](https://img.shields.io/badge/Next.js-15-black) ![Convex](https://img.shields.io/badge/Convex-Backend-orange)
+
+---
+
+## 🎯 Overview
+
+Drakonimi discovers dragon myths, powers, and cultural significance through interactive visualization showing connections between dragons based on shared attributes.
+
+### Key Features
+- 🫧 **Interactive BubbleCloud**: Force-directed graph with dragons as nodes
+- 🔍 **Smart Search**: Real-time filtering with tag-based similarity
+- 🎨 **Tag Coloring**: Fire=Crimson, Ice=Blue, Wisdom=Gold
+- ✨ **Animations**: Glow effects and animated particles
+
+---
+
+## 🚀 Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npx convex dev --once  # Setup Convex
+npm run dev            # → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📊 Data
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**3 Seed Dragons:**
+- Smaug (fire, greed, legendary)
+- Fafnir (nordic, gold, cursed)
+- Nidhogg (ice, underworld, ancient)
 
-## Learn More
+**Convex DEV**: combative-cassowary-221  
+**Git**: Commit 4fc86f8
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔗 Links
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [GitHub Repo](https://github.com/Shadojus/drakonimi-platform)
+- [Main Project](../../README.md)
+- Sister Platforms: [Funginomi](../05_Funginomi/funginomi-platform) | [Phytonomi](../05_Phytonomi/phytonomi-platform)
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Part of the AletheIA Wisdom Network** 🐉
