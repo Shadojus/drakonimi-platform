@@ -1,18 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
+  const dragons = useQuery(api.dragons.search, { searchTerm: searchQuery });
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-    
-    setIsSearching(true);
-    // TODO: Implement search functionality with Convex
-    setTimeout(() => setIsSearching(false), 1000); // Placeholder
   };
 
   return (
@@ -44,22 +41,60 @@ export default function Home() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for dragons (e.g., Smaug, Fafnir, Eastern Dragons...)"
+                placeholder="Search for dragons (e.g., Ignis Rex, Glacius Guardian...)"
                 className="w-full px-6 py-4 rounded-full bg-dragon-surface border-2 border-dragon-primary focus:border-dragon-accent text-dragon-text placeholder-dragon-text-secondary/50 outline-none transition-colors"
               />
               <button
                 type="submit"
-                disabled={isSearching || !searchQuery.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-dragon-accent hover:bg-dragon-secondary text-white rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-dragon-accent hover:bg-dragon-secondary text-white rounded-full font-medium transition-colors"
               >
-                {isSearching ? "Searching..." : "Search"}
+                Search
               </button>
             </div>
           </form>
         </div>
 
+        {/* Results */}
+        {dragons && dragons.length > 0 && (
+          <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {dragons.map((dragon) => (
+              <div
+                key={dragon._id}
+                className="bg-dragon-surface/50 p-6 rounded-lg border border-dragon-primary/20 hover:border-dragon-accent/50 transition-colors"
+              >
+                {dragon.imageUrl && (
+                  <img
+                    src={dragon.imageUrl}
+                    alt={dragon.name}
+                    className="w-full h-48 object-cover rounded-lg mb-4"
+                  />
+                )}
+                <h3 className="text-xl font-bold text-dragon-accent mb-2">
+                  {dragon.name}
+                </h3>
+                <p className="text-sm text-dragon-text-secondary mb-3">
+                  Origin: {dragon.origin}
+                </p>
+                <p className="text-sm text-dragon-text mb-4">
+                  {dragon.description}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {dragon.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 bg-dragon-primary/30 text-dragon-accent text-xs rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Placeholder for Bubble Visualization */}
-        <div className="bg-dragon-surface/50 rounded-lg p-12 text-center border-2 border-dashed border-dragon-primary/30">
+        <div className="bg-dragon-surface/50 rounded-lg p-12 text-center border-2 border-dashed border-dragon-primary/30 mt-8">
           <div className="max-w-2xl mx-auto">
             <div className="text-6xl mb-6">🫧</div>
             <h3 className="text-2xl font-bold text-dragon-accent mb-4">
