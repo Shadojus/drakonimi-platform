@@ -43,7 +43,7 @@ export default function BubbleCloud({
   onDragonClick,
   searchQuery = "",
 }: BubbleCloudProps) {
-  const graphRef = useRef<any>();
+  const graphRef = useRef<any>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   useEffect(() => {
