@@ -12,76 +12,35 @@ const BubbleCloud = dynamic(() => import("../components/BubbleCloud"), {
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDragonId, setSelectedDragonId] = useState<string | null>(null);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
-  const searchResults = useQuery(
+  // Get all dragons for bubble cloud
+  const allDragons = useQuery(api.dragons.list, {});
+
+  // Get filtered dragons based on search
+  const filteredDragons = useQuery(
     api.dragons.search,
     searchQuery.trim().length >= 2 ? { searchTerm: searchQuery } : "skip"
   );
 
+  // Get selected dragon details
   const dragonData = useQuery(
     api.dragons.getById,
     selectedDragonId ? { id: selectedDragonId as any } : "skip"
   );
 
-  // Mock categories until we add them to the database
-  const mockCategories = selectedDragonId ? [
-    { _id: "1", type: "mythology", title: "Ancient Myths", content: "Discover the ancient myths..." },
-    { _id: "2", type: "powers", title: "Dragon Powers", content: "Explore the mystical powers..." },
-    { _id: "3", type: "history", title: "Historical Records", content: "Read historical accounts..." },
-    { _id: "4", type: "culture", title: "Cultural Impact", content: "Learn about cultural influence..." },
-    { _id: "5", type: "lore", title: "Dragon Lore", content: "Deep dive into dragon lore..." },
-    { _id: "6", type: "wisdom", title: "Ancient Wisdom", content: "Wisdom passed down..." },
-  ] : [];
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
   };
 
-  const handleDragonSelect = (dragonId: string) => {
+  const handleDragonClick = (dragonId: string) => {
     setSelectedDragonId(dragonId);
-    setSelectedCategoryId(null);
-    setSearchQuery("");
-  };
-
-  const handleCategoryClick = (categoryId: string) => {
-    setSelectedCategoryId(categoryId);
   };
 
   const handleBack = () => {
-    if (selectedCategoryId) {
-      setSelectedCategoryId(null);
-    } else {
-      setSelectedDragonId(null);
-    }
+    setSelectedDragonId(null);
   };
 
-  // Show category detail view
-  if (selectedCategoryId && mockCategories) {
-    const category = mockCategories.find((c) => c._id === selectedCategoryId);
-    return (
-      <div className="min-h-screen bg-dragon-bg text-dragon-text">
-        <header className="border-b border-dragon-surface/50 bg-dragon-surface/80 backdrop-blur-sm">
-          <div className="mx-auto max-w-7xl px-4 py-6">
-            <button
-              onClick={handleBack}
-              className="text-dragon-accent hover:text-dragon-secondary mb-2"
-            >
-              ← Back to {dragonData?.name}
-            </button>
-            <h1 className="text-3xl font-bold text-dragon-accent">
-              {category?.title}
-            </h1>
-          </div>
-        </header>
-        <main className="mx-auto max-w-4xl px-4 py-16">
-          <p className="text-dragon-text text-lg">{category?.content}</p>
-        </main>
-      </div>
-    );
-  }
-
-  // Show dragon detail with bubble cloud
+  // Show dragon detail view
   if (selectedDragonId && dragonData) {
     return (
       <div className="min-h-screen bg-dragon-bg text-dragon-text">
@@ -89,54 +48,70 @@ export default function Home() {
           <div className="mx-auto max-w-7xl px-4 py-6">
             <button
               onClick={handleBack}
-              className="text-dragon-accent hover:text-dragon-secondary mb-2"
+              className="text-dragon-accent hover:text-dragon-secondary mb-2 flex items-center gap-2"
             >
               ← Back to search
             </button>
             <h1 className="text-3xl font-bold text-dragon-accent">
               {dragonData.name}
             </h1>
-            <p className="text-sm text-dragon-text-secondary">{dragonData.origin}</p>
+            <p className="text-sm text-dragon-text-secondary italic">{dragonData.origin}</p>
           </div>
         </header>
 
         <main className="mx-auto max-w-7xl px-4 py-16">
+          {/* Dragon Image */}
+          {dragonData.imageUrl && (
+            <div className="mb-8">
+              <img
+                src={dragonData.imageUrl}
+                alt={dragonData.name}
+                className="w-full max-w-2xl mx-auto h-96 object-cover rounded-lg shadow-2xl"
+              />
+            </div>
+          )}
+
           {/* Dragon Details */}
           <div className="bg-dragon-surface/50 p-8 rounded-lg border border-dragon-primary/20 mb-8">
-            <p className="text-dragon-text text-lg mb-4">{dragonData.description}</p>
+            <h2 className="text-2xl font-bold text-dragon-accent mb-4">Description</h2>
+            <p className="text-dragon-text text-lg mb-6">{dragonData.description}</p>
+            
+            <h3 className="text-xl font-bold text-dragon-accent mb-3">Common Names</h3>
+            <div className="flex flex-wrap gap-2 mb-6">
+              {dragonData.commonNames?.map((name: string) => (
+                <span
+                  key={name}
+                  className="px-3 py-1 bg-dragon-primary/30 text-dragon-accent text-sm rounded-full"
+                >
+                  {name}
+                </span>
+              ))}
+            </div>
+
+            <h3 className="text-xl font-bold text-dragon-accent mb-3">Attributes</h3>
             <div className="flex flex-wrap gap-2">
               {dragonData.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-3 py-1 bg-dragon-primary/30 text-dragon-accent text-sm rounded-full"
+                  className="px-3 py-1 bg-dragon-accent/20 text-dragon-accent text-sm rounded-full border border-dragon-accent/30"
                 >
                   {tag}
                 </span>
               ))}
             </div>
           </div>
-
-          {/* Bubble Cloud */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-dragon-accent mb-4">
-              🫧 Knowledge Categories
-            </h2>
-            <BubbleCloud
-              categories={mockCategories}
-              dragonName={dragonData.name}
-              onCategoryClick={handleCategoryClick}
-            />
-          </div>
         </main>
       </div>
     );
   }
 
-  // Show search/home view
+  // Show search/home view with BubbleCloud
+  const displayDragons = searchQuery.trim().length >= 2 ? filteredDragons : allDragons;
+
   return (
     <div className="min-h-screen bg-dragon-bg text-dragon-text">
       {/* Header */}
-      <header className="border-b border-dragon-surface/50 bg-dragon-surface/80 backdrop-blur-sm">
+      <header className="border-b border-dragon-surface/50 bg-dragon-surface/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="mx-auto max-w-7xl px-4 py-6">
           <h1 className="text-3xl font-bold text-dragon-accent">
             🐉 DRAKONIMI
@@ -152,66 +127,115 @@ export default function Home() {
             Explore Dragon Lore
           </h2>
           <p className="text-xl text-dragon-text-secondary mb-8">
-            Search and select a dragon to see an interactive bubble visualization
+            Interactive visualization of dragon wisdom and mythology
           </p>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-12">
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
             <div className="relative">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for dragons (e.g., Ignis Rex, Glacius Guardian...)"
+                placeholder="Filter dragons (e.g., fire, wisdom, ancient...)"
                 className="w-full px-6 py-4 rounded-full bg-dragon-surface border-2 border-dragon-primary focus:border-dragon-accent text-dragon-text placeholder-dragon-text-secondary/50 outline-none transition-colors"
               />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-dragon-accent hover:bg-dragon-secondary text-white rounded-full font-medium transition-colors"
-              >
-                Search
-              </button>
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-20 top-1/2 -translate-y-1/2 text-dragon-text-secondary hover:text-dragon-accent"
+                >
+                  ✕
+                </button>
+              )}
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-dragon-accent">
+                🔍
+              </div>
             </div>
           </form>
+
+          {searchQuery && displayDragons && (
+            <p className="text-dragon-text-secondary mb-6">
+              Showing {displayDragons.length} dragon{displayDragons.length !== 1 ? 's' : ''}
+            </p>
+          )}
         </div>
 
-        {/* Search Results */}
-        {searchResults && searchResults.length > 0 && (
-          <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {searchResults.map((dragon) => (
-              <button
-                key={dragon._id}
-                onClick={() => handleDragonSelect(dragon._id)}
-                className="bg-dragon-surface/50 p-6 rounded-lg border border-dragon-primary/20 hover:border-dragon-accent/50 transition-colors text-left cursor-pointer"
-              >
-                {dragon.imageUrl && (
-                  <img
-                    src={dragon.imageUrl}
-                    alt={dragon.name}
-                    className="w-full h-48 object-cover rounded-lg mb-4"
-                  />
-                )}
-                <h3 className="text-xl font-bold text-dragon-accent mb-2">
-                  {dragon.name}
-                </h3>
-                <p className="text-sm text-dragon-text-secondary mb-3">
-                  Origin: {dragon.origin}
-                </p>
-                <p className="text-sm text-dragon-text mb-4">
-                  {dragon.description}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {dragon.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-1 bg-dragon-primary/30 text-dragon-accent text-xs rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </button>
-            ))}
+        {/* BubbleCloud Visualization */}
+        {displayDragons && displayDragons.length > 0 && (
+          <div className="mb-12">
+            <div className="bg-dragon-surface/30 rounded-lg p-6 border border-dragon-primary/20">
+              <h3 className="text-2xl font-bold text-dragon-accent mb-4 text-center">
+                🫧 Interactive Dragon Network
+              </h3>
+              <p className="text-dragon-text-secondary text-center mb-6">
+                Click any dragon bubble to explore in detail
+              </p>
+              <BubbleCloud
+                dragons={displayDragons}
+                onDragonClick={handleDragonClick}
+                searchQuery={searchQuery}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Dragon Grid (fallback/additional view) */}
+        {displayDragons && displayDragons.length > 0 && (
+          <div className="mt-8">
+            <h3 className="text-2xl font-bold text-dragon-accent mb-6">
+              Dragon Archive
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayDragons.map((dragon) => (
+                <button
+                  key={dragon._id}
+                  onClick={() => handleDragonClick(dragon._id)}
+                  className="bg-dragon-surface/50 p-6 rounded-lg border border-dragon-primary/20 hover:border-dragon-accent/50 transition-all hover:scale-105 text-left cursor-pointer group"
+                >
+                  {dragon.imageUrl && (
+                    <img
+                      src={dragon.imageUrl}
+                      alt={dragon.name}
+                      className="w-full h-48 object-cover rounded-lg mb-4 group-hover:opacity-80 transition-opacity"
+                    />
+                  )}
+                  <h3 className="text-xl font-bold text-dragon-accent mb-2 group-hover:text-dragon-secondary transition-colors">
+                    {dragon.name}
+                  </h3>
+                  <p className="text-sm text-dragon-text-secondary mb-3">
+                    Origin: {dragon.origin}
+                  </p>
+                  <p className="text-sm text-dragon-text mb-4 line-clamp-3">
+                    {dragon.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {dragon.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 bg-dragon-primary/30 text-dragon-accent text-xs rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {displayDragons && displayDragons.length === 0 && (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">🐉</div>
+            <h3 className="text-2xl font-bold text-dragon-accent mb-2">
+              No dragons found
+            </h3>
+            <p className="text-dragon-text-secondary">
+              Try a different search term or browse all dragons
+            </p>
           </div>
         )}
 
