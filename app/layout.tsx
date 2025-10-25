@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Drakonimi - Dragon Wisdom",
+  title: "Drakonomi - Dragon Wisdom",
   description: "Explore the myths, powers, and cultural significance of dragons",
 };
 

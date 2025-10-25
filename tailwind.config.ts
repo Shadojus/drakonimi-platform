@@ -9,7 +9,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Drakonimi Dragon Theme - Dark & Powerful
+        // Drakonomi Dragon Theme - Dark & Powerful
         'dragon-primary': '#8B0000',     // Dark Red
         'dragon-secondary': '#FFD700',   // Gold
         'dragon-accent': '#FF4500',      // Orange Red (Dragon Fire)

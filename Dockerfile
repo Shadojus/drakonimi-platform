@@ -1,4 +1,4 @@
-# Drakonimi Platform - Next.js Dockerfile
+# Drakonomi Platform - Next.js Dockerfile
 # Optimized for Raspberry Pi (ARM64) with network resilience
 
 # ============================================

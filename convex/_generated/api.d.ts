@@ -9,6 +9,7 @@
  */
 
 import type * as dragons from "../dragons.js";
+import type * as seed from "../seed.js";
 
 import type {
   ApiFromModules,
@@ -26,6 +27,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   dragons: typeof dragons;
+  seed: typeof seed;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

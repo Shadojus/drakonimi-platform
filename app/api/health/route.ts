@@ -1,7 +1,7 @@
 export async function GET() {
   return Response.json({
     status: 'healthy',
-    service: 'drakonimi',
+    service: 'Drakonomi',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
