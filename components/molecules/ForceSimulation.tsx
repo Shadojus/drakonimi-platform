@@ -45,7 +45,7 @@ export const useForceSimulation = ({ graphRef }: ForceSimulationProps) => {
         // Link force - related nodes attract each other
         const linkForce = fg.d3Force("link");
         if (linkForce?.distance) {
-          linkForce.distance((link: ForceGraphLink) => {
+          linkForce.distance((link: GraphLink) => {
             // Stronger connections = shorter distance (nodes closer together)
             const strength = link.strength || 0.5;
             // High strength (many common tags) = distance 30-60
@@ -54,7 +54,7 @@ export const useForceSimulation = ({ graphRef }: ForceSimulationProps) => {
           });
         }
         if (linkForce?.strength) {
-          linkForce.strength((link: ForceGraphLink) => {
+          linkForce.strength((link: GraphLink) => {
             // Connection strength determines pull force
             const strength = link.strength || 0.5;
             return FORCE_CONFIG.linkStrength * strength;
