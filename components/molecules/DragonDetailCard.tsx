@@ -5,6 +5,8 @@
 
 "use client";
 
+import { TAG_COLORS } from "../atoms/TagColors";
+
 interface Dragon {
   _id: string;
   name: string;
@@ -45,14 +47,22 @@ export function DragonDetailCard({ dragon }: DragonDetailCardProps) {
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2">
-            {dragon.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 rounded-full text-sm font-medium bg-dragon-primary/20 text-dragon-primary border border-dragon-primary/30"
-              >
-                {tag}
-              </span>
-            ))}
+            {dragon.tags.map((tag) => {
+              const tagColor = TAG_COLORS[tag.toLowerCase()] || "#FFD700";
+              return (
+                <span
+                  key={tag}
+                  className="px-3 py-1 rounded-full text-sm font-medium border"
+                  style={{
+                    backgroundColor: `${tagColor}33`,
+                    color: tagColor,
+                    borderColor: `${tagColor}66`,
+                  }}
+                >
+                  {tag}
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>

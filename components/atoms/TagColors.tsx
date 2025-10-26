@@ -4,115 +4,116 @@
  */
 
 export const TAG_COLORS: Record<string, string> = {
-  // Fire/Power Dragons (red-orange spectrum)
-  fire: "#FF4500",
-  power: "#DC143C",
-  volcanic: "#B22222",
-  destruction: "#8B0000",
-  strength: "#FF6347",
+  // Special/Power traits - most vibrant
+  legendary: "#FFB300",      // Bright amber-gold
+  mythical: "#BA68C8",       // Purple
+  ancient: "#BF8F54",        // Warm brown-gold
+  primordial: "#8D6E63",     // Earth brown
+  immortal: "#CE93D8",       // Light purple
+  divine: "#FFD54F",         // Light gold
+  sacred: "#FFB300",         // Amber
   
-  // Water/Ice Dragons (blue-cyan spectrum)
-  water: "#1E90FF",
-  ice: "#00CED1",
-  ocean: "#4682B4",
-  frost: "#B0E0E6",
-  storm: "#4169E1",
+  // Fire/Power Dragons (warm spectrum)
+  fire: "#F4511E",
+  power: "#C62828",
+  volcanic: "#BF360C",
+  destruction: "#B71C1C",
+  strength: "#FF7043",
+  
+  // Water/Ice Dragons (cool spectrum)
+  water: "#1E88E5",
+  ice: "#26C6DA",
+  ocean: "#5C6BC0",
+  frost: "#81D4FA",
+  storm: "#3949AB",
   
   // Nature/Earth Dragons (green-brown spectrum)
-  nature: "#228B22",
-  earth: "#8B4513",
-  forest: "#2E8B57",
-  plant: "#32CD32",
-  mountain: "#A0522D",
+  nature: "#43A047",
+  earth: "#795548",
+  forest: "#388E3C",
+  plant: "#66BB6A",
+  mountain: "#8D6E63",
   
-  // Light/Holy Dragons (white-gold spectrum)
-  light: "#FFFACD",
-  holy: "#FFD700",
-  divine: "#FFF8DC",
-  celestial: "#F0E68C",
-  wisdom: "#FAFAD2",
+  // Light/Holy Dragons (gold spectrum)
+  light: "#FFF9C4",
+  holy: "#FFB300",
+  celestial: "#FFD54F",
+  wisdom: "#FFE082",
   
-  // Dark/Shadow Dragons (purple-black spectrum)
-  dark: "#8B008B",
-  shadow: "#483D8B",
-  void: "#2F4F4F",
-  death: "#191970",
-  nightmare: "#4B0082",
+  // Dark/Shadow Dragons (purple-dark spectrum)
+  dark: "#7B1FA2",
+  shadow: "#512DA8",
+  void: "#455A64",
+  death: "#311B92",
+  nightmare: "#4A148C",
   
   // Time/Space Dragons (cosmic colors)
-  time: "#9370DB",
-  space: "#663399",
-  cosmic: "#6A5ACD",
-  quantum: "#7B68EE",
-  eternity: "#9932CC",
+  time: "#7E57C2",
+  space: "#5E35B1",
+  cosmic: "#673AB7",
+  quantum: "#7C4DFF",
+  eternity: "#9575CD",
   
   // Elemental attributes
-  lightning: "#FFD700",
-  wind: "#87CEEB",
-  thunder: "#4682B4",
-  poison: "#9ACD32",
-  venom: "#ADFF2F",
-  
-  // Dragon characteristics
-  ancient: "#DEB887",
-  primordial: "#8B7355",
-  legendary: "#FFD700",
-  mythical: "#DA70D6",
-  immortal: "#DDA0DD",
+  lightning: "#FFB300",
+  wind: "#64B5F6",
+  thunder: "#5C6BC0",
+  poison: "#7CB342",
+  venom: "#9CCC65",
   
   // Behavioral traits
-  guardian: "#4682B4",
-  protector: "#6495ED",
-  destroyer: "#DC143C",
-  trickster: "#FF69B4",
-  wise: "#FFD700",
-  fierce: "#FF4500",
-  noble: "#4169E1",
-  savage: "#8B0000",
-  cunning: "#FF8C00",
-  benevolent: "#87CEEB",
-  malevolent: "#8B008B",
+  guardian: "#5C6BC0",
+  protector: "#7986CB",
+  destroyer: "#C62828",
+  trickster: "#EC407A",
+  wise: "#FFB300",
+  fierce: "#F4511E",
+  noble: "#3949AB",
+  savage: "#D32F2F",
+  cunning: "#F57C00",
+  benevolent: "#42A5F5",
+  malevolent: "#7B1FA2",
   
   // Special attributes
-  shapeshifter: "#FF1493",
-  immortality: "#BA55D3",
-  regeneration: "#32CD32",
-  treasure: "#FFD700",
-  greed: "#B8860B",
-  chaos: "#DC143C",
+  shapeshifter: "#BA68C8",
+  immortality: "#9C27B0",
+  regeneration: "#66BB6A",
+  treasure: "#FFB300",
+  greed: "#BF8F54",
+  chaos: "#E53935",
   
   // Cultural
-  european: "#4169E1",
-  asian: "#DC143C",
-  chinese: "#FF0000",
-  japanese: "#FF4500",
-  nordic: "#87CEEB",
-  greek: "#FFD700",
-  egyptian: "#DAA520",
-  aztec: "#32CD32",
-  indian: "#FF6347",
-  welsh: "#DC143C",
+  european: "#5C6BC0",
+  asian: "#E53935",
+  chinese: "#F44336",
+  japanese: "#FF5722",
+  nordic: "#64B5F6",
+  greek: "#FFB300",
+  egyptian: "#FFA726",
+  aztec: "#66BB6A",
+  indian: "#FF7043",
+  welsh: "#E53935",
   
   // Types
-  wyrm: "#8B4513",
-  drake: "#FF6347",
-  wyvern: "#4682B4",
-  hydra: "#32CD32",
-  serpent: "#9370DB",
+  wyrm: "#795548",
+  drake: "#FF7043",
+  wyvern: "#5C6BC0",
+  hydra: "#66BB6A",
+  serpent: "#9C27B0",
 };
 
 /**
  * Get color for a tag, with fallback to default gold
  */
 export const getTagColor = (tag: string): string => {
-  return TAG_COLORS[tag.toLowerCase()] || "#FFD700";
+  return TAG_COLORS[tag.toLowerCase()] || "#FFB300";
 };
 
 /**
  * Get primary color for a dragon based on its tags
  */
 export const getPrimaryDragonColor = (tags: string[]): string => {
-  if (tags.length === 0) return "#FFD700"; // Default gold
+  if (tags.length === 0) return "#FFB300"; // Default amber-gold
   
   // Priority order for color selection
   const priorityTags = [

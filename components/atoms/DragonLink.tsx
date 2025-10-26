@@ -14,11 +14,11 @@ export interface DragonLinkData {
  */
 export const getLinkColor = (strength: number): string => {
   if (strength >= 3) {
-    return "rgba(255, 215, 0, 0.8)"; // Gold for strong connections
+    return "rgba(255, 215, 0, 0.15)"; // More transparent gold for strong connections
   } else if (strength >= 2) {
-    return "rgba(255, 215, 0, 0.5)"; // Semi-transparent gold
+    return "rgba(255, 215, 0, 0.10)"; // Very transparent gold
   } else {
-    return "rgba(255, 215, 0, 0.2)"; // Faint gold
+    return "rgba(255, 215, 0, 0.05)"; // Nearly invisible gold
   }
 };
 
