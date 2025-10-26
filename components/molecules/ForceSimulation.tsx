@@ -64,8 +64,8 @@ export const useForceSimulation = ({ graphRef }: ForceSimulationProps) => {
         // Strong collision detection
         fg.d3Force(
           "collide",
-          forceCollide<GraphNode>()
-            .radius((node: GraphNode) => node.size + FORCE_CONFIG.collisionRadius)
+          forceCollide()
+            .radius((node: any) => node.size + FORCE_CONFIG.collisionRadius)
             .strength(FORCE_CONFIG.collisionStrength)
         );
 
