@@ -13,8 +13,6 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
   className = '',
   icon 
 }) => {
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements;
-  
   const sizeClasses = {
     1: 'text-4xl md:text-5xl',
     2: 'text-3xl md:text-4xl',
@@ -22,10 +20,12 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
     4: 'text-xl md:text-2xl',
   };
 
+  const HeadingTag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4';
+
   return (
-    <Tag className={`font-bold text-gray-900 flex items-center gap-3 ${sizeClasses[level]} ${className}`}>
+    <HeadingTag className={`font-bold text-gray-900 flex items-center gap-3 ${sizeClasses[level]} ${className}`}>
       {icon && <span>{icon}</span>}
       {children}
-    </Tag>
+    </HeadingTag>
   );
 };

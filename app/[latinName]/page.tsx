@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { fetchQuery } from 'convex/nextjs';
 import { api } from '@/convex/_generated/api';
 import { DragonDetailTemplate } from '@/components/templates/DragonDetailTemplate';
+import { Doc } from '@/convex/_generated/dataModel';
 
 interface DragonPageProps {
   params: Promise<{ latinName: string }>;
@@ -11,8 +12,8 @@ interface DragonPageProps {
 // Generate static params for all dragons
 export async function generateStaticParams() {
   const dragons = await fetchQuery(api.dragons.list);
-  return dragons.map((dragon) => ({
-    latinName: dragon.latinName.toLowerCase().replace(/\s+/g, '-'),
+  return dragons.map((dragon: Doc<'dragons'>) => ({
+    latinName: (dragon.latinName || dragon.name).toLowerCase().replace(/\s+/g, '-'),
   }));
 }
 
@@ -30,10 +31,10 @@ export async function generateMetadata({ params }: DragonPageProps): Promise<Met
   }
 
   return {
-    title: `${dragon.name} (${dragon.latinName}) - Drakonimi`,
+    title: `${dragon.name} (${dragon.latinName || dragon.name}) - Drakonimi`,
     description: dragon.shortDescription || dragon.description || `Learn about ${dragon.name}`,
     openGraph: {
-      images: dragon.images?.[0] ? [dragon.images[0]] : [],
+      images: dragon.images?.[0] ? [dragon.images[0]] : (dragon.imageUrl ? [dragon.imageUrl] : []),
     },
   };
 }
@@ -65,11 +66,11 @@ export default async function DragonPage({ params }: DragonPageProps) {
   const dragonData = {
     _id: dragon._id,
     name: dragon.name,
-    latinName: dragon.latinName,
-    images: dragon.images,
+    latinName: dragon.latinName || dragon.name,
+    images: dragon.images || (dragon.imageUrl ? [dragon.imageUrl] : []),
     element: dragon.element,
     dangerLevel: dragon.dangerLevel as 'harmless' | 'cautious' | 'dangerous' | 'deadly' | 'legendary' | undefined,
-    shortDescription: dragon.shortDescription,
+    shortDescription: dragon.shortDescription || dragon.description,
     description: dragon.description,
     habitat: dragon.habitat,
     powerLevel: dragon.powerLevel,
@@ -85,14 +86,14 @@ export default async function DragonPage({ params }: DragonPageProps) {
     abilities: dragon.abilities,
   };
 
-  const relatedDragonsData = relatedDragons.map((d: any) => ({
+  const relatedDragonsData = relatedDragons.map((d: Doc<'dragons'>) => ({
     _id: d._id,
     name: d.name,
-    latinName: d.latinName,
-    images: d.images,
+    latinName: d.latinName || d.name,
+    images: d.images || (d.imageUrl ? [d.imageUrl] : []),
     element: d.element,
     dangerLevel: d.dangerLevel as 'harmless' | 'cautious' | 'dangerous' | 'deadly' | 'legendary' | undefined,
-    shortDescription: d.shortDescription,
+    shortDescription: d.shortDescription || d.description,
   }));
 
   return (

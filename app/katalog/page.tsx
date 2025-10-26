@@ -3,6 +3,7 @@ import { fetchQuery } from 'convex/nextjs';
 import { api } from '@/convex/_generated/api';
 import { DragonCard } from '@/components/molecules/DragonCard';
 import { SectionHeading } from '@/components/atoms';
+import { Doc } from '@/convex/_generated/dataModel';
 
 export const metadata: Metadata = {
   title: 'Dragon Catalog - Drakonimi',
@@ -25,17 +26,17 @@ export default async function KatalogPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {dragons.map((dragon: any) => (
+          {dragons.map((dragon: Doc<'dragons'>) => (
             <DragonCard
               key={dragon._id}
               dragon={{
                 _id: dragon._id,
                 name: dragon.name,
-                latinName: dragon.latinName,
-                images: dragon.images,
+                latinName: dragon.latinName || dragon.name,
+                images: dragon.images || (dragon.imageUrl ? [dragon.imageUrl] : []),
                 element: dragon.element,
                 dangerLevel: dragon.dangerLevel as 'harmless' | 'cautious' | 'dangerous' | 'deadly' | 'legendary' | undefined,
-                shortDescription: dragon.shortDescription,
+                shortDescription: dragon.shortDescription || dragon.description,
               }}
             />
           ))}
