@@ -2,7 +2,10 @@
 
 **Interactive mythology platform exploring dragons across civilizations with immersive fullscreen universe visualization built on Atomic Design principles.**
 
-![Status](https://img.shields.io/badge/Status-Production_Ready-success) ![Version](https://img.shields.io/badge/Version-2.2-blue) ![Next.js](https://img.shields.io/badge/Next.js-15-black) ![Convex](https://img.shields.io/badge/Convex-Backend-orange) ![Architecture](https://img.shields.io/badge/Atomic_Design-Implemented-purple)
+![Status](https://img.shields.io/badge/Status-Production-success) ![Version](https://img.shields.io/badge/Version-2.2-blue) ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![Convex](https://img.shields.io/badge/Convex-Backend-orange) ![Architecture](https://img.shields.io/badge/Atomic_Design-Implemented-purple)
+
+**Production**: https://drakonomi.com ✅  
+**Latest**: Commit `f581256` - TypeScript fixes (Oct 26, 2025)
 
 ---
 
@@ -10,15 +13,23 @@
 
 Drakonomi is a **template platform** for knowledge visualization, featuring a revolutionary fullscreen "universe" design built with **Atomic Design architecture**. It explores dragon mythology, powers, and cultural significance through an interactive force-directed graph where dragons are nodes connected by shared attributes.
 
-### ✨ Version 2.1 Features (October 2025)
+### ✨ Version 2.2 Features (October 2025)
 
-#### 🏗️ Atomic Design Architecture
-- **⚛️ Atoms**: Reusable building blocks (DragonNode, DragonLink, TagColors)
-- **🔬 Molecules**: Compound components (ImageCache, GraphData, ForceSimulation)
+#### 🆕 Interactive Features (Oct 25-26, 2025)
+- **🔄 Multi-Selection**: Select up to 3 dragons simultaneously (FIFO queue)
+- **� Tag-Based Clustering**: Related dragons attract, unrelated repel
+- **🌟 Tag Highlighting**: Click tags to discover connections
+- **⚡ Dynamic Forces**: Link strength based on tag overlap
+- **📍 Smart Positioning**: 5-7 nodes visible on first load
+- **🎨 Visual Feedback**: SelectedNodeBar shows current selection
+
+#### �🏗️ Atomic Design Architecture
+- **⚛️ Atoms**: Reusable building blocks (DragonNode, DragonLink, TagColors, TagHighlighter)
+- **🔬 Molecules**: Compound components (ImageCache, GraphData, ForceSimulation, SelectedNodeBar)
 - **🧬 Organisms**: Complex features (BubbleCloud)
 - **Full modularity** - Each component independently testable
 - **Template-ready** - Easy adaptation for Funginomi/Phytonomi
-- **Type-safe** - Complete TypeScript coverage
+- **Type-safe** - Complete TypeScript coverage with proper GraphLink types
 
 #### 🌌 Fullscreen Universe Design
 - **No borders, no containers** - Just the cosmic dragon network
@@ -27,21 +38,21 @@ Drakonomi is a **template platform** for knowledge visualization, featuring a re
 - **Universe feeling** - Float through knowledge like stars in space
 
 #### 🎨 Enhanced Visualization with Balanced Aesthetics
-- **30+ Dragon Profiles** across multiple mythologies
+- **30 Dragon Profiles** across multiple mythologies (Fafnir, Smaug, Shenlong, etc.)
 - **Dragon Images in Bubbles** - Circular cropped photos with colored borders
 - **60+ Color-coded Tags** for attributes and cultures
-- **Smart Link Scaling** - Logarithmic width prevents thick lines (0.8-1.8px)
+- **Smart Link Scaling** - Dynamic width based on connection strength
 - **Zoom-Independent Layout** - Looks great at any zoom level
-- **Better Node Spacing** - Stronger repulsion (-600) for clarity
+- **Optimized Node Spacing** - Strong repulsion (-3000) for clarity
 - **Collision Prevention** - 15px padding prevents overlap
-- **Smooth Particle Flows** for living, breathing network
+- **Smooth Physics Simulation** for living, breathing network
 - **Cultural Connections** - Dragons linked by origin and type
 
 #### 🔍 Improved Search & Navigation
 - **Real-time filtering** in sticky header
 - **Tag-based similarity** matching
-- **Dragon count display** showing filtered results
 - **Smooth transitions** between views
+- **No popups** - Clean interface with header bar selection
 
 ---
 

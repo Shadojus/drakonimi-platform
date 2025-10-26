@@ -15,15 +15,15 @@ export type GraphNode = {
   vy?: number;
 };
 
-export type GraphLink = {
+export type ForceGraphLink = {
   strength?: number;
   source: string | GraphNode;
   target: string | GraphNode;
 };
 
 export type ForceLike = {
-  strength?: (n: number | ((link: GraphLink) => number)) => unknown;
-  distance?: (fn: number | ((l: GraphLink) => number)) => unknown;
+  strength?: (n: number | ((link: ForceGraphLink) => number)) => unknown;
+  distance?: (fn: number | ((l: ForceGraphLink) => number)) => unknown;
 };
 
 export type ForceGraphLike = {
@@ -58,7 +58,7 @@ export const useForceSimulation = ({ graphRef }: ForceSimulationProps) => {
         // Link force - related nodes attract each other
         const linkForce = fg.d3Force("link");
         if (linkForce?.distance) {
-          linkForce.distance((link: GraphLink) => {
+          linkForce.distance((link: ForceGraphLink) => {
             // Stronger connections = shorter distance (nodes closer together)
             const strength = link.strength || 0.5;
             // High strength (many common tags) = distance 30-60
@@ -67,7 +67,7 @@ export const useForceSimulation = ({ graphRef }: ForceSimulationProps) => {
           });
         }
         if (linkForce?.strength) {
-          linkForce.strength((link: GraphLink) => {
+          linkForce.strength((link: ForceGraphLink) => {
             // Connection strength determines pull force
             const strength = link.strength || 0.5;
             return FORCE_CONFIG.linkStrength * strength;
@@ -126,5 +126,4 @@ export const applyRadialBoundary = (nodes: GraphNode[], maxRadius: number = FORC
     }
   });
 };
-
 export default useForceSimulation;
