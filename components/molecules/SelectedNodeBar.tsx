@@ -49,7 +49,7 @@ export const SelectedNodeBar: React.FC<SelectedNodeBarProps> = ({
             <div className="flex-1 min-w-0">
               {/* Link to detail page - HIGHEST PRIORITY */}
               <Link 
-                href={`/dragon/${encodeURIComponent(dragon.name.toLowerCase().replace(/\s+/g, '-'))}`}
+                href={`/${encodeURIComponent(dragon.latinName.toLowerCase().replace(/\s+/g, '-'))}`}
                 className="font-bold text-sm sm:text-base transition-all block mb-0.5 sm:mb-1 truncate hover:brightness-110"
                 style={{ color: nodeColor }}
               >

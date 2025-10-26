@@ -13,15 +13,33 @@ export const list = query({
 export const search = query({
   args: { searchTerm: v.string() },
   handler: async (ctx, args) => {
-    if (!args.searchTerm) {
-      return await ctx.db.query("dragons").collect();
+    if (!args.searchTerm || args.searchTerm.length < 2) {
+      return [];
     }
-    
+
+    const searchLower = args.searchTerm.toLowerCase();
     const allDragons = await ctx.db.query("dragons").collect();
-    return allDragons.filter((dragon) =>
-      dragon.name.toLowerCase().includes(args.searchTerm.toLowerCase()) ||
-      dragon.description.toLowerCase().includes(args.searchTerm.toLowerCase())
-    );
+    
+    const results = allDragons.filter((dragon) => {
+      // Search in common name
+      if (dragon.name.toLowerCase().includes(searchLower)) return true;
+      
+      // Search in latin name
+      if (dragon.latinName && dragon.latinName.toLowerCase().includes(searchLower)) return true;
+      
+      // Search in tags
+      if (dragon.tags && dragon.tags.some((tag: string) => tag.toLowerCase().includes(searchLower))) return true;
+      
+      // Search in origin
+      if (dragon.origin && dragon.origin.toLowerCase().includes(searchLower)) return true;
+      
+      // Search in description
+      if (dragon.description && dragon.description.toLowerCase().includes(searchLower)) return true;
+      
+      return false;
+    });
+
+    return results.slice(0, 50); // Limit to 50 results
   },
 });
 
@@ -30,6 +48,63 @@ export const getById = query({
   args: { id: v.id("dragons") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
+  },
+});
+
+// Get dragon by Latin name (for URL routing)
+export const getByLatinName = query({
+  args: { latinName: v.string() },
+  handler: async (ctx, args) => {
+    // Normalize the search term (handle URL format: lowercase with hyphens)
+    const searchTerm = args.latinName.toLowerCase().replace(/-/g, ' ');
+    
+    const allDragons = await ctx.db.query("dragons").collect();
+    
+    // Find dragon where latinName matches (case-insensitive)
+    const dragon = allDragons.find(d => 
+      d.latinName && d.latinName.toLowerCase() === searchTerm
+    );
+    
+    return dragon || null;
+  },
+});
+
+// Get related dragons (same element or similar properties)
+export const getRelated = query({
+  args: { 
+    dragonId: v.id("dragons"), 
+    limit: v.optional(v.number()) 
+  },
+  handler: async (ctx, args) => {
+    const dragon = await ctx.db.get(args.dragonId);
+    if (!dragon) return [];
+
+    const allDragons = await ctx.db.query("dragons").collect();
+    
+    // Find dragons with shared tags or properties
+    const related = allDragons
+      .filter((d) => {
+        if (d._id === dragon._id) return false;
+        
+        // Check for shared tags
+        if (dragon.tags && d.tags) {
+          const sharedTags = dragon.tags.filter((tag: string) => d.tags.includes(tag));
+          if (sharedTags.length > 0) return true;
+        }
+        
+        return false;
+      })
+      .slice(0, args.limit || 6);
+
+    return related;
+  },
+});
+
+// Get all available dragons (for listing)
+export const getAvailable = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("dragons").collect();
   },
 });
 
