@@ -3,4 +3,4 @@
  * Export all organism components
  */
 
-export { default as BubbleCloud } from "./BubbleCloudddd";
+export { default as BubbleCloud } from "./BubbleCloud";
