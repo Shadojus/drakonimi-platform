@@ -5,28 +5,15 @@
 
 import { useEffect } from "react";
 import { forceCollide } from "d3-force";
+import type { GraphNode, GraphLink } from "./GraphData";
 
-// Minimal typings to avoid `any`
-export type GraphNode = {
-  size: number;
-  x?: number;
-  y?: number;
-  vx?: number;
-  vy?: number;
+// Minimal typings for D3 force methods
+type ForceLike = {
+  strength?: (n: number | ((link: GraphLink) => number)) => unknown;
+  distance?: (fn: number | ((l: GraphLink) => number)) => unknown;
 };
 
-export type ForceGraphLink = {
-  strength?: number;
-  source: string | GraphNode;
-  target: string | GraphNode;
-};
-
-export type ForceLike = {
-  strength?: (n: number | ((link: ForceGraphLink) => number)) => unknown;
-  distance?: (fn: number | ((l: ForceGraphLink) => number)) => unknown;
-};
-
-export type ForceGraphLike = {
+type ForceGraphLike = {
   d3Force: (name: string, force?: unknown) => ForceLike | undefined;
   d3ReheatSimulation: () => void;
 };
@@ -110,8 +97,8 @@ export const FORCE_CONFIG = {
 /**
  * Radial boundary constraint - keeps nodes within a certain radius
  */
-export const applyRadialBoundary = (nodes: GraphNode[], maxRadius: number = FORCE_CONFIG.maxRadius) => {
-  nodes.forEach((node: GraphNode) => {
+export const applyRadialBoundary = (nodes: any[], maxRadius: number = FORCE_CONFIG.maxRadius) => {
+  nodes.forEach((node: any) => {
     const { x = 0, y = 0 } = node;
     const distance = Math.sqrt(x * x + y * y);
     
