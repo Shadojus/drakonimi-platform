@@ -168,9 +168,10 @@ function BubbleCloud({
   }, [onDragonClick]);
 
   const handleNodeDragEnd = useCallback((node: FGNode) => {
-    if (node) {
-      node.fx = undefined;
-      node.fy = undefined;
+    if (node && node.x !== undefined && node.y !== undefined) {
+      // Freeze node at its new position after manual drag
+      node.fx = node.x;
+      node.fy = node.y;
     }
   }, []);
 
