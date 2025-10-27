@@ -182,63 +182,20 @@ function BubbleCloud({
       node.fy = node.y;
     }
   }, []);
-  
-  // PERFORMANCE FIX: Force canvas repaint when highlight/selection changes WITHOUT React re-render
-  useEffect(() => {
-    if (graphRef.current) {
-      // Trigger a single canvas redraw by nudging the force graph
-      // This is much cheaper than React re-rendering the entire component
-      graphRef.current._refreshCanvas?.();
-    }
-  }, [highlightedTags, selectedNodeIds]);
-  
-  // CHROME PERFORMANCE FIX: Optimize canvas context for GPU acceleration
-  useEffect(() => {
-    if (!graphRef.current) return;
-    
-    // Wait for canvas to be ready
-    const timer = setTimeout(() => {
-      const canvas = document.querySelector('#bubble-container canvas') as HTMLCanvasElement;
-      if (canvas) {
-        // Force Chrome to use GPU compositing
-        canvas.style.willChange = 'transform';
-        canvas.style.transform = 'translateZ(0)';
-        
-        // Try to get the context and set performance hints
-        try {
-          const ctx = canvas.getContext('2d', {
-            alpha: false, // No transparency = faster
-            desynchronized: true, // Lower latency
-            willReadFrequently: false // Use GPU
-          });
-          if (ctx) {
-            // Enable image smoothing for better quality at different scales
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'low'; // Fast but acceptable quality
-          }
-        } catch (e) {
-          // Fallback if context is already created
-          console.log('Canvas context already initialized');
-        }
-      }
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, []);
 
-  // PERFORMANCE FIX: Create stable predicates that read from refs (no dependencies = no recreations)
+  // Stable predicates - read from refs, NEVER recreated
   const isNodeSelected = useCallback((node: FGNode) => {
     const selected = selectedNodeIdsRef.current;
     return selected.includes(node.dragonId || '');
-  }, []); // Empty deps - stable forever
+  }, []);
 
   const isNodeHighlighted = useCallback((node: FGNode) => {
     const highlighted = highlightedTagsRef.current;
     if (highlighted.size === 0) return false;
     return node.tags?.some((tag: string) => highlighted.has(tag)) ?? false;
-  }, []); // Empty deps - stable forever
+  }, []);
 
-  // Memoize the node renderer for better performance
+  // Node renderer - ONLY depends on imageCache
   const nodeCanvasObject = useCallback((
     node: FGNode,
     ctx: CanvasRenderingContext2D,
@@ -268,18 +225,17 @@ function BubbleCloud({
       globalScale,
       cachedImage,
     });
-  }, [dragons, imageCache]); // PERFORMANCE FIX: Remove dependencies that change on highlight/selection
+  }, [imageCache]); // ONLY imageCache - predicates are stable
 
 
   return (
-    <div id="bubble-container" className="w-full h-full bg-dragon-bg" style={{ willChange: 'transform' }}>
+    <div id="bubble-container" className="w-full h-full bg-dragon-bg">
       <ForceGraph2D
         ref={graphRef}
         graphData={graphData}
         width={dimensions.width}
         height={dimensions.height}
         backgroundColor="#0A0A0A"
-        enablePointerInteraction={true}
         nodeRelSize={6}
   nodeVal={(node: FGNode) => node.size ?? 20}
   nodeLabel={(node: FGNode) => `${node.name}\n${node.tags?.join(", ") || ""}`}
