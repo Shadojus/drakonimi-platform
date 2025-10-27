@@ -55,6 +55,14 @@ function BubbleCloud({
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   // Touch to avoid unused-var lint
   void _searchQuery;
+  
+  // PERFORMANCE FIX: Use refs for highlight/selection state to avoid re-renders
+  const highlightedTagsRef = useRef(highlightedTags);
+  const selectedNodeIdsRef = useRef(selectedNodeIds);
+  
+  // Update refs when props change (doesn't trigger re-render)
+  highlightedTagsRef.current = highlightedTags;
+  selectedNodeIdsRef.current = selectedNodeIds;
 
   // Use atomic components
   const imageCache = useImageCache(dragons);
@@ -174,15 +182,27 @@ function BubbleCloud({
       node.fy = node.y;
     }
   }, []);
+  
+  // PERFORMANCE FIX: Force canvas repaint when highlight/selection changes WITHOUT React re-render
+  useEffect(() => {
+    if (graphRef.current) {
+      // Trigger a single canvas redraw by nudging the force graph
+      // This is much cheaper than React re-rendering the entire component
+      graphRef.current._refreshCanvas?.();
+    }
+  }, [highlightedTags, selectedNodeIds]);
 
+  // PERFORMANCE FIX: Create stable predicates that read from refs (no dependencies = no recreations)
   const isNodeSelected = useCallback((node: FGNode) => {
-    return selectedNodeIds.includes(node.dragonId || '');
-  }, [selectedNodeIds]);
+    const selected = selectedNodeIdsRef.current;
+    return selected.includes(node.dragonId || '');
+  }, []); // Empty deps - stable forever
 
   const isNodeHighlighted = useCallback((node: FGNode) => {
-    if (highlightedTags.size === 0) return false;
-    return node.tags?.some((tag: string) => highlightedTags.has(tag)) ?? false;
-  }, [highlightedTags]);
+    const highlighted = highlightedTagsRef.current;
+    if (highlighted.size === 0) return false;
+    return node.tags?.some((tag: string) => highlighted.has(tag)) ?? false;
+  }, []); // Empty deps - stable forever
 
   // Memoize the node renderer for better performance
   const nodeCanvasObject = useCallback((
@@ -214,7 +234,8 @@ function BubbleCloud({
       globalScale,
       cachedImage,
     });
-  }, [dragons, imageCache, isNodeSelected, isNodeHighlighted]);
+  }, [dragons, imageCache]); // PERFORMANCE FIX: Remove dependencies that change on highlight/selection
+
 
   return (
     <div id="bubble-container" className="w-full h-full bg-dragon-bg">
@@ -252,7 +273,7 @@ function BubbleCloud({
   );
 }
 
-// Custom comparison function for React.memo
+// Custom comparison function for React.memo with PROPER Set comparison
 const customComparison = (prevProps: BubbleCloudProps, nextProps: BubbleCloudProps) => {
   const dragonsEqual = prevProps.dragons.length === nextProps.dragons.length;
   
@@ -261,7 +282,13 @@ const customComparison = (prevProps: BubbleCloudProps, nextProps: BubbleCloudPro
     (prevProps.selectedNodeIds?.length || 0) === (nextProps.selectedNodeIds?.length || 0) &&
     (prevProps.selectedNodeIds?.every((id, idx) => id === nextProps.selectedNodeIds?.[idx]) ?? true);
   
-  const highlightedTagsEqual = (prevProps.highlightedTags?.size || 0) === (nextProps.highlightedTags?.size || 0);
+  // PERFORMANCE FIX: Properly compare Set contents, not just size
+  const prevTags = Array.from(prevProps.highlightedTags || []).sort();
+  const nextTags = Array.from(nextProps.highlightedTags || []).sort();
+  const highlightedTagsEqual = 
+    prevTags.length === nextTags.length &&
+    prevTags.every((tag, idx) => tag === nextTags[idx]);
+  
   const callbackEqual = prevProps.onDragonClick === nextProps.onDragonClick;
   
   return dragonsEqual && selectedIdsEqual && highlightedTagsEqual && callbackEqual;
