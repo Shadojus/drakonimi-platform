@@ -5,7 +5,7 @@
 
 export * from "./ImageCache";
 export * from "./GraphData";
-export * from "./ForceSimulation";
+// NOTE: ForceSimulation is client-only, import directly from './ForceSimulation'
 export * from "./DragonDetailCard";
 
 // Detail Page Molecules

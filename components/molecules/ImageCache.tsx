@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Molecule: ImageCache
  * Manages preloading and caching of dragon images
@@ -8,10 +10,27 @@ import { useState, useEffect } from "react";
 export interface Dragon {
   _id: string;
   name: string;
+  latinName?: string;
   origin: string;
   tags: string[];
   description: string;
   imageUrl?: string;
+  // Extended fields from Convex schema
+  images?: string[];
+  element?: string;
+  dangerLevel?: 'harmless' | 'cautious' | 'dangerous' | 'deadly' | 'legendary';
+  habitat?: string[];
+  powerLevel?: number;
+  wingspan?: number;
+  intelligence?: number;
+  speed?: number;
+  fireBreath?: number;
+  family?: string;
+  order?: string;
+  diet?: string;
+  lifespan?: string;
+  abilities?: string[];
+  isAvailable?: boolean;
 }
 
 /**

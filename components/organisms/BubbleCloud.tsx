@@ -6,7 +6,7 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, useCallback, memo } from "react";
 import dynamic from "next/dynamic";
 import * as d3 from "d3-force";
 
@@ -32,7 +32,7 @@ interface BubbleCloudProps {
   selectedNodeIds?: string[]; // Changed to array for multi-selection
 }
 
-export default function BubbleCloud({
+function BubbleCloud({
   dragons,
   onDragonClick,
   // rename to avoid unused-var lint while keeping prop API stable
@@ -51,6 +51,7 @@ export default function BubbleCloud({
   };
   type FGLink = { source?: any; target?: any; strength?: number };
   const graphRef = useRef<any>(null);
+  const animationFrameRef = useRef<number | null>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   // Touch to avoid unused-var lint
   void _searchQuery;
@@ -131,27 +132,88 @@ export default function BubbleCloud({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dragons.length]);
 
-  // Handle responsive dimensions
+  // Handle responsive dimensions with requestAnimationFrame for better performance
   useEffect(() => {
     const updateDimensions = () => {
-      const container = document.getElementById("bubble-container");
-      if (container) {
-        setDimensions({
-          width: container.offsetWidth,
-          height: container.offsetHeight,
-        });
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
+      
+      animationFrameRef.current = requestAnimationFrame(() => {
+        const container = document.getElementById("bubble-container");
+        if (container) {
+          setDimensions({
+            width: container.offsetWidth,
+            height: container.offsetHeight,
+          });
+        }
+      });
     };
+    
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
-    return () => window.removeEventListener("resize", updateDimensions);
+    
+    return () => {
+      window.removeEventListener("resize", updateDimensions);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, []);
 
-  const handleNodeClick = (node: { dragonId?: string }) => {
+  const handleNodeClick = useCallback((node: { dragonId?: string }) => {
     if (node.dragonId) {
       onDragonClick(node.dragonId);
     }
-  };
+  }, [onDragonClick]);
+
+  const handleNodeDragEnd = useCallback((node: FGNode) => {
+    if (node) {
+      node.fx = undefined;
+      node.fy = undefined;
+    }
+  }, []);
+
+  const isNodeSelected = useCallback((node: FGNode) => {
+    return selectedNodeIds.includes(node.dragonId || '');
+  }, [selectedNodeIds]);
+
+  const isNodeHighlighted = useCallback((node: FGNode) => {
+    if (highlightedTags.size === 0) return false;
+    return node.tags?.some((tag: string) => highlightedTags.has(tag)) ?? false;
+  }, [highlightedTags]);
+
+  // Memoize the node renderer for better performance
+  const nodeCanvasObject = useCallback((
+    node: FGNode,
+    ctx: CanvasRenderingContext2D,
+    globalScale: number
+  ) => {
+    const dragon = dragons.find((d) => d._id === node.dragonId);
+    if (!dragon) return;
+    
+    const cachedImage = node.dragonId ? imageCache.get(node.dragonId) : undefined;
+    
+    renderDragonNode({
+      node: { 
+        type: 'dragon', 
+        color: node.color || '#888', 
+        size: node.size || 20, 
+        name: node.name || '', 
+        dragonId: node.dragonId, 
+        tags: node.tags, 
+        imageUrl: node.imageUrl, 
+        x: node.x, 
+        y: node.y, 
+        isSelected: isNodeSelected(node), 
+        isHighlighted: isNodeHighlighted(node), 
+        id: String(node.dragonId || node.name || '') 
+      },
+      ctx,
+      globalScale,
+      cachedImage,
+    });
+  }, [dragons, imageCache, isNodeSelected, isNodeHighlighted]);
 
   return (
     <div id="bubble-container" className="w-full h-full bg-dragon-bg">
@@ -165,35 +227,18 @@ export default function BubbleCloud({
   nodeVal={(node: FGNode) => node.size ?? 20}
   nodeLabel={(node: FGNode) => `${node.name}\n${node.tags?.join(", ") || ""}`}
   nodeColor={(node: FGNode) => node.color || '#888'}
-        nodeCanvasObject={(
-          node: FGNode,
-          ctx: CanvasRenderingContext2D,
-          globalScale: number
-        ) => {
-          const cachedImage = node.dragonId ? imageCache.get(node.dragonId) : undefined;
-          const isSelected = selectedNodeIds.length === 0 || (node.dragonId ? selectedNodeIds.includes(node.dragonId) : false);
-          const isHighlighted = highlightedTags.size > 0 && (node.tags?.some((t: string) => highlightedTags.has(t)) ?? false);
-          renderDragonNode({
-            node: { type: 'dragon', color: node.color || '#888', size: node.size || 20, name: node.name || '', dragonId: node.dragonId, tags: node.tags, imageUrl: node.imageUrl, x: node.x, y: node.y, isSelected, isHighlighted, id: String(node.dragonId || node.name || '') },
-            ctx,
-            globalScale,
-            cachedImage,
-          });
-        }}
+        nodeCanvasObject={nodeCanvasObject}
           linkColor={(link: FGLink) => getLinkColor(link.strength ?? 0)}
           linkWidth={(link: FGLink) => getLinkWidth(link.strength ?? 0.5)}
           linkDirectionalParticles={(link: FGLink) => getLinkParticles(link.strength ?? 0)}
         linkDirectionalParticleWidth={3}
         linkDirectionalParticleSpeed={0.003}
   onNodeClick={(node: any) => handleNodeClick(node)}
-        onNodeDragEnd={(node: FGNode & { x?: number; y?: number; fx?: number; fy?: number }) => {
-          // Fix node position after drag - don't let simulation move it
-          node.fx = node.x;
-          node.fy = node.y;
-        }}
+        onNodeDragEnd={handleNodeDragEnd}
   cooldownTicks={FORCE_CONFIG.cooldownTicks}
         d3VelocityDecay={FORCE_CONFIG.velocityDecay}
   d3AlphaDecay={FORCE_CONFIG.alphaDecay}
+  d3AlphaMin={FORCE_CONFIG.alphaMin}
   warmupTicks={FORCE_CONFIG.warmupTicks}
         enableNodeDrag={true}
         enableZoomInteraction={true}
@@ -205,3 +250,15 @@ export default function BubbleCloud({
     </div>
   );
 }
+
+// Custom comparison function for React.memo
+const customComparison = (prevProps: BubbleCloudProps, nextProps: BubbleCloudProps) => {
+  return (
+    prevProps.dragons.length === nextProps.dragons.length &&
+    (prevProps.selectedNodeIds?.length || 0) === (nextProps.selectedNodeIds?.length || 0) &&
+    (prevProps.highlightedTags?.size || 0) === (nextProps.highlightedTags?.size || 0) &&
+    prevProps.onDragonClick === nextProps.onDragonClick
+  );
+};
+
+export default memo(BubbleCloud, customComparison);

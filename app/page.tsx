@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import dynamic from "next/dynamic";
 import { TagHighlighterGroup, FEATURED_DRAGON_TAGS } from "@/components/atoms/TagHighlighter";
 import { SelectedNodeBar } from "@/components/molecules/SelectedNodeBar";
+import DragonDetailModal from "@/components/organisms/DragonDetailModal";
 
 const BubbleCloud = dynamic(() => import("../components/organisms/BubbleCloud"), {
   ssr: false,
@@ -16,6 +17,7 @@ export default function Home() {
   const [selectedDragonIds, setSelectedDragonIds] = useState<string[]>([]); // Up to 3 IDs
   const [highlightedTags, setHighlightedTags] = useState<Set<string>>(new Set());
   const [hasUserClosedSelection, setHasUserClosedSelection] = useState(false);
+  const [modalDragonId, setModalDragonId] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Set<string>>(() => {
     // Load favorites from localStorage on mount
     if (typeof window !== 'undefined') {
@@ -52,6 +54,18 @@ export default function Home() {
       : allDragons || [];
   }, [searchQuery, filteredDragons, allDragons]);
 
+  // Get dragon for modal
+  const modalDragon = useMemo(() => {
+    if (!modalDragonId) return null;
+    return displayDragons.find((d) => d._id === modalDragonId) || null;
+  }, [modalDragonId, displayDragons]);
+
+  // Get related dragons for modal
+  const relatedDragons = useQuery(
+    api.dragons.getRelated,
+    modalDragon ? { dragonId: modalDragon._id } : "skip"
+  );
+
   // Get selected dragons objects (up to 3)
   const selectedDragons = useMemo(() => 
     selectedDragonIds
@@ -74,7 +88,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displayDragons.length, hasUserClosedSelection]);
 
-  const handleDragonClick = (dragonId: string) => {
+  const handleDragonClick = useCallback((dragonId: string) => {
     setSelectedDragonIds((prev) => {
       // If already selected, remove it
       if (prev.includes(dragonId)) {
@@ -88,16 +102,14 @@ export default function Home() {
       return [...prev.slice(1), dragonId];
     });
     setHasUserClosedSelection(false);
-  };
+  }, []);
 
-  const handleRemoveDragon = (dragonId: string) => {
+  const handleRemoveDragon = useCallback((dragonId: string) => {
     setSelectedDragonIds((prev) => prev.filter(id => id !== dragonId));
-    if (selectedDragonIds.length === 1) {
-      setHasUserClosedSelection(true);
-    }
-  };
+    setHasUserClosedSelection(true);
+  }, []);
 
-  const handleToggleFavorite = (dragonId: string) => {
+  const handleToggleFavorite = useCallback((dragonId: string) => {
     setFavorites((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(dragonId)) {
@@ -107,9 +119,9 @@ export default function Home() {
       }
       return newSet;
     });
-  };
+  }, []);
 
-  const handleToggleTag = (tag: string) => {
+  const handleToggleTag = useCallback((tag: string) => {
     setHighlightedTags((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(tag)) {
@@ -119,7 +131,15 @@ export default function Home() {
       }
       return newSet;
     });
-  };
+  }, []);
+
+  const handleOpenModal = useCallback((dragonId: string) => {
+    setModalDragonId(dragonId);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setModalDragonId(null);
+  }, []);
 
   return (
     <div className="min-h-screen bg-dragon-bg text-dragon-text">
@@ -195,7 +215,16 @@ export default function Home() {
         selectedDragons={selectedDragons}
         onRemove={handleRemoveDragon}
         onToggleFavorite={handleToggleFavorite}
+        onOpenDetail={handleOpenModal}
         favorites={favorites}
+      />
+
+      {/* Detail Modal */}
+      <DragonDetailModal
+        dragon={modalDragon}
+        relatedDragons={relatedDragons || []}
+        isOpen={!!modalDragonId}
+        onClose={handleCloseModal}
       />
     </div>
   );

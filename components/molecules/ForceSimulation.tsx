@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Molecule: ForceSimulation
  * Configuration for the physics simulation that positions nodes
@@ -78,20 +80,21 @@ export const useForceSimulation = ({ graphRef }: ForceSimulationProps) => {
 
 /**
  * Force simulation configuration constants
- * EXACT same as Drakonimi and Funginomi
+ * OPTIMIZED for performance
  */
 export const FORCE_CONFIG = {
-  velocityDecay: 0.3, // moderate friction for smooth movement
-  alphaDecay: 0.05, // faster cooling for stability
-  warmupTicks: 60, // quick warmup
-  cooldownTicks: 80, // settle without freezing
-  chargeStrength: -3000, // 40% stronger repulsion - non-related nodes farther apart
-  centerStrength: 0.08, // stronger centering to keep nodes together
-  collisionRadius: 15, // Much larger padding - ensures minimum distance
-  collisionStrength: 0.95, // Very strong collision enforcement
-  maxRadius: 400, // tighter boundary for compact view
-  linkDistance: 120, // Larger base distance between connected nodes
-  linkStrength: 0.35, // Slightly weaker attraction for more space
+  velocityDecay: 0.4, // Higher = faster settling
+  alphaDecay: 0.08, // Higher = simulation cools down faster
+  alphaMin: 0.001, // Stop simulation earlier
+  warmupTicks: 30, // Reduced from 60
+  cooldownTicks: 40, // Reduced from 80
+  chargeStrength: -3000,
+  centerStrength: 0.08,
+  collisionRadius: 15,
+  collisionStrength: 0.95,
+  maxRadius: 400,
+  linkDistance: 120,
+  linkStrength: 0.35,
 };
 
 /**

@@ -3,7 +3,6 @@
  * Displays up to 3 simultaneously selected dragon nodes below the header
  */
 
-import Link from "next/link";
 import { TAG_COLORS, getPrimaryDragonColor } from "@/components/atoms/TagColors";
 import type { Dragon } from "./ImageCache";
 
@@ -11,6 +10,7 @@ interface SelectedNodeBarProps {
   selectedDragons: Dragon[];
   onRemove: (dragonId: string) => void;
   onToggleFavorite: (dragonId: string) => void;
+  onOpenDetail: (dragonId: string) => void;
   favorites: Set<string>;
 }
 
@@ -18,6 +18,7 @@ export const SelectedNodeBar: React.FC<SelectedNodeBarProps> = ({
   selectedDragons, 
   onRemove, 
   onToggleFavorite,
+  onOpenDetail,
   favorites 
 }) => {
   if (selectedDragons.length === 0) return null;
@@ -47,14 +48,14 @@ export const SelectedNodeBar: React.FC<SelectedNodeBarProps> = ({
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              {/* Link to detail page - HIGHEST PRIORITY */}
-              <Link 
-                href={`/${encodeURIComponent(dragon.latinName.toLowerCase().replace(/\s+/g, '-'))}`}
-                className="font-bold text-sm sm:text-base transition-all block mb-0.5 sm:mb-1 truncate hover:brightness-110"
+              {/* Button to open detail modal - HIGHEST PRIORITY */}
+              <button
+                onClick={() => onOpenDetail(dragon._id)}
+                className="font-bold text-sm sm:text-base transition-all block mb-0.5 sm:mb-1 truncate hover:brightness-110 text-left w-full"
                 style={{ color: nodeColor }}
               >
                 {dragon.name} →
-              </Link>
+              </button>
               {/* All tags */}
               <div className="flex flex-wrap gap-0.5 sm:gap-1">
                 {dragon.tags.map((tag: string) => {

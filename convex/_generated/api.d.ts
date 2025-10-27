@@ -8,8 +8,10 @@
  * @module
  */
 
+import type * as clearData from "../clearData.js";
 import type * as dragons from "../dragons.js";
 import type * as seed from "../seed.js";
+import type * as seedDragons from "../seedDragons.js";
 
 import type {
   ApiFromModules,
@@ -26,8 +28,10 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  clearData: typeof clearData;
   dragons: typeof dragons;
   seed: typeof seed;
+  seedDragons: typeof seedDragons;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
