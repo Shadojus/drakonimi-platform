@@ -254,12 +254,17 @@ function BubbleCloud({
 
 // Custom comparison function for React.memo
 const customComparison = (prevProps: BubbleCloudProps, nextProps: BubbleCloudProps) => {
-  return (
-    prevProps.dragons.length === nextProps.dragons.length &&
+  const dragonsEqual = prevProps.dragons.length === nextProps.dragons.length;
+  
+  // Deep compare selectedNodeIds - must check actual values not just length
+  const selectedIdsEqual = 
     (prevProps.selectedNodeIds?.length || 0) === (nextProps.selectedNodeIds?.length || 0) &&
-    (prevProps.highlightedTags?.size || 0) === (nextProps.highlightedTags?.size || 0) &&
-    prevProps.onDragonClick === nextProps.onDragonClick
-  );
+    (prevProps.selectedNodeIds?.every((id, idx) => id === nextProps.selectedNodeIds?.[idx]) ?? true);
+  
+  const highlightedTagsEqual = (prevProps.highlightedTags?.size || 0) === (nextProps.highlightedTags?.size || 0);
+  const callbackEqual = prevProps.onDragonClick === nextProps.onDragonClick;
+  
+  return dragonsEqual && selectedIdsEqual && highlightedTagsEqual && callbackEqual;
 };
 
 export default memo(BubbleCloud, customComparison);
