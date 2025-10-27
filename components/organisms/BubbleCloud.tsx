@@ -191,6 +191,40 @@ function BubbleCloud({
       graphRef.current._refreshCanvas?.();
     }
   }, [highlightedTags, selectedNodeIds]);
+  
+  // CHROME PERFORMANCE FIX: Optimize canvas context for GPU acceleration
+  useEffect(() => {
+    if (!graphRef.current) return;
+    
+    // Wait for canvas to be ready
+    const timer = setTimeout(() => {
+      const canvas = document.querySelector('#bubble-container canvas') as HTMLCanvasElement;
+      if (canvas) {
+        // Force Chrome to use GPU compositing
+        canvas.style.willChange = 'transform';
+        canvas.style.transform = 'translateZ(0)';
+        
+        // Try to get the context and set performance hints
+        try {
+          const ctx = canvas.getContext('2d', {
+            alpha: false, // No transparency = faster
+            desynchronized: true, // Lower latency
+            willReadFrequently: false // Use GPU
+          });
+          if (ctx) {
+            // Enable image smoothing for better quality at different scales
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'low'; // Fast but acceptable quality
+          }
+        } catch (e) {
+          // Fallback if context is already created
+          console.log('Canvas context already initialized');
+        }
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // PERFORMANCE FIX: Create stable predicates that read from refs (no dependencies = no recreations)
   const isNodeSelected = useCallback((node: FGNode) => {
@@ -238,13 +272,14 @@ function BubbleCloud({
 
 
   return (
-    <div id="bubble-container" className="w-full h-full bg-dragon-bg">
+    <div id="bubble-container" className="w-full h-full bg-dragon-bg" style={{ willChange: 'transform' }}>
       <ForceGraph2D
         ref={graphRef}
         graphData={graphData}
         width={dimensions.width}
         height={dimensions.height}
         backgroundColor="#0A0A0A"
+        enablePointerInteraction={true}
         nodeRelSize={6}
   nodeVal={(node: FGNode) => node.size ?? 20}
   nodeLabel={(node: FGNode) => `${node.name}\n${node.tags?.join(", ") || ""}`}
